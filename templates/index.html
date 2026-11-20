@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Router Diagnostics | NetMonitor</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f8fc;
+            color: #1e293b;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            width: 245px;
+            height: 100vh;
+            background: #ffffff;
+            border-right: 1px solid #e5eaf1;
+            padding: 30px 20px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 50px;
+        }
+
+        .menu-title {
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            color: #64748b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        .menu-item.active,
+        .menu-item:hover {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            margin-left: 245px;
+            padding: 35px 40px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 25px;
+            font-weight: 700;
+            color: #172554;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* SUMMARY CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5eaf1;
+            border-radius: 12px;
+            padding: 23px;
+        }
+
+        .card-label {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .card-value {
+            font-size: 23px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .card small {
+            display: block;
+            color: #94a3b8;
+            margin-top: 9px;
+            font-size: 12px;
+        }
+
+        /* SECTIONS */
+        .section {
+            background: #ffffff;
+            border: 1px solid #e5eaf1;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 22px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            gap: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 16px;
+            color: #1e293b;
+        }
+
+        /* ROUTER INFORMATION */
+        .router-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .info-label {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 9px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .device-badge {
+            color: #2563eb;
+            background: #eff6ff;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* BUTTON */
+        .btn {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        /* OUTPUT */
+        .output {
+            background: #f8fafc;
+            border: 1px solid #e5eaf1;
+            border-radius: 8px;
+            padding: 18px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            color: #334155;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .command-title {
+            font-size: 13px;
+            color: #2563eb;
+            margin-bottom: 12px;
+        }
+
+        .empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 30px 15px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow-wrap: anywhere;
+            font-size: 13px;
+        }
+
+        .success {
+            color: #16a34a;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 20px;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .router-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 650px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                padding: 20px;
+            }
+
+            .logo {
+                margin-bottom: 22px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .cards,
+            .router-info {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+
+        <div class="logo">NetMonitor.</div>
+
+        <p class="menu-title">MAIN MENU</p>
+
+        <a href="#dashboard" class="menu-item active">Dashboard</a>
+        <a href="#router" class="menu-item">Router Information</a>
+        <a href="#diagnostics" class="menu-item">Diagnostics</a>
+        <a href="#logs" class="menu-item">System Logs</a>
+
+    </aside>
+
+    <main class="main">
+
+        <!-- HEADER -->
+        <header class="topbar" id="dashboard">
+
+            <div>
+                <h1>Router Diagnostics</h1>
+                <p class="subtitle">
+                    Monitor your network and retrieve router information.
+                </p>
+            </div>
+
+            {% if error %}
+                <span class="badge" style="background:#fef2f2;color:#dc2626;">
+                    Connection Failed
+                </span>
+            {% elif results %}
+                <span class="badge" style="background:#f0fdf4;color:#16a34a;">
+                    Diagnostics Completed
+                </span>
+            {% else %}
+                <span class="badge">
+                    Awaiting Connection
+                </span>
+            {% endif %}
+
+        </header>
+
+        <!-- ERROR MESSAGE -->
+        {% if error %}
+        <div class="error">
+            <strong>Connection Error</strong>
+            <p style="margin-top:7px;">{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <!-- SUMMARY CARDS -->
+        <section class="cards">
+
+            <div class="card">
+                <p class="card-label">Router Address</p>
+                <p class="card-value">192.168.10.103</p>
+                <small>Configured router IP</small>
+            </div>
+
+            <div class="card">
+                <p class="card-label">Connection Port</p>
+                <p class="card-value">32770</p>
+                <small>Telnet connection</small>
+            </div>
+
+            <div class="card">
+                <p class="card-label">Diagnostic Commands</p>
+                <p class="card-value">{{ results|length }} / 3</p>
+                <small>Commands with returned output</small>
+            </div>
+
+        </section>
+
+        <!-- ROUTER INFORMATION -->
+        <section class="section" id="router">
+
+            <div class="section-header">
+                <h2>Router Information</h2>
+                <span class="device-badge">Cisco IOS</span>
+            </div>
+
+            <div class="router-info">
+
+                <div>
+                    <p class="info-label">Device Type</p>
+                    <p class="info-value">Cisco IOS Router</p>
+                </div>
+
+                <div>
+                    <p class="info-label">IP Address</p>
+                    <p class="info-value">192.168.10.103</p>
+                </div>
+
+                <div>
+                    <p class="info-label">Connection Method</p>
+                    <p class="info-value">Telnet</p>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- RUN DIAGNOSTICS -->
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Run Diagnostics</h2>
+            </div>
+
+            <p class="subtitle" style="margin-bottom:20px;">
+                Connect to the router and retrieve its diagnostic information.
+            </p>
+
+            <form method="POST" id="diagnosticForm">
+
+                <button type="submit" class="btn" id="runButton">
+                    Run Router Diagnostics
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- DIAGNOSTIC RESULTS -->
+        <section class="section" id="diagnostics">
+
+            <div class="section-header">
+                <h2>Diagnostic Results</h2>
+            </div>
+
+            {% if results %}
+
+                {% for command, output in results.items() %}
+
+                    <div style="margin-bottom:25px;">
+
+                        <h3 class="command-title">
+                            {{ command }}
+                        </h3>
+
+                        <pre class="output">{{ output }}</pre>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty">
+                    No diagnostic results available yet.<br>
+                    Click "Run Router Diagnostics" to retrieve router information.
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <!-- SYSTEM LOGS -->
+        <section class="section" id="logs">
+
+            <div class="section-header">
+                <h2>System Logs</h2>
+            </div>
+
+            {% if error %}
+
+                <p style="color:#dc2626;font-size:13px;">
+                    Router connection failed. Please check the connection.
+                </p>
+
+            {% elif results %}
+
+                <p class="success">
+                    Diagnostics returned output successfully.
+                </p>
+
+            {% else %}
+
+                <p class="subtitle">
+                    No diagnostic activity recorded in this session.
+                </p>
+
+            {% endif %}
+
+        </section>
+
+        <footer class="footer">
+            NetMonitor Router Diagnostics System
+            <br><br>
+            Flask + Python + Netmiko
+        </footer>
+
+    </main>
+
+    <script>
+        const form = document.getElementById("diagnosticForm");
+        const button = document.getElementById("runButton");
+
+        form.addEventListener("submit", function () {
+            button.disabled = true;
+            button.textContent = "Connecting to Router...";
+        });
+    </script>
+
+</body>
+</html>
